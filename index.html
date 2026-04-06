@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitor de Progresso do Formulário</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>Monitor de Progresso</h1>
+        <p>
+          Cole o HTML da página de revisão para acompanhar o progresso real das
+          perguntas, separando o que está pendente de resposta e o que é apenas
+          evidência opcional.
+        </p>
+      </header>
+
+      <section id="inputPanel" class="panel">
+        <label for="htmlInput">HTML da tela de revisão</label>
+        <textarea
+          id="htmlInput"
+          placeholder="Cole aqui o HTML completo da tela..."
+        ></textarea>
+
+        <div class="actions">
+          <button id="analyzeBtn" class="btn primary">
+            Atualizar monitoramento
+          </button>
+          <button id="clearBtn" class="btn">Limpar</button>
+        </div>
+
+        <label class="checkbox-wrap">
+          <input id="includeEvidence" type="checkbox" />
+          <span>Considerar status de evidências no cálculo do progresso</span>
+        </label>
+      </section>
+
+      <section id="dashboard" class="dashboard hidden">
+        <div class="actions top-actions">
+          <button id="newHtmlBtn" class="btn">Inserir novo HTML</button>
+        </div>
+
+        <div class="cards" id="summaryCards"></div>
+
+        <div class="bar-wrap">
+          <div class="bar-label">
+            <strong>Progresso geral</strong>
+            <span id="progressText">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="split">
+          <section class="panel small">
+            <h2>Por dimensão</h2>
+            <div id="dimensionList" class="dimension-list"></div>
+          </section>
+
+          <section class="panel small">
+            <h2>Pendências</h2>
+            <div id="pendingList" class="pending-accordion"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

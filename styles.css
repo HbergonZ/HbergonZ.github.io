@@ -1,0 +1,274 @@
+:root {
+  --bg: #f4f6fb;
+  --panel: #ffffff;
+  --text: #222;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --border: #e5e7eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+}
+
+.header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+label {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 8px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.top-actions {
+  margin-top: 0;
+  margin-bottom: 12px;
+  justify-content: flex-end;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: #f9fafb;
+  color: var(--text);
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  filter: brightness(0.98);
+}
+
+.btn.primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.btn.primary:hover {
+  background: var(--primary-dark);
+}
+
+.checkbox-wrap {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.checkbox-wrap input {
+  margin: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  background: #fff;
+}
+
+.card .label {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.card .value {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.value.success {
+  color: var(--success);
+}
+
+.value.danger {
+  color: var(--danger);
+}
+
+.bar-wrap {
+  margin-bottom: 16px;
+}
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+#progressFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #2563eb, #16a34a);
+  transition: width 0.25s ease;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.small h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.dimension-item {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.dimension-item:last-child {
+  margin-bottom: 0;
+}
+
+.dimension-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.dimension-top strong {
+  flex: 1;
+  min-width: 0;
+}
+
+.dimension-top span {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mini-bar {
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  height: 8px;
+}
+
+.mini-bar > span {
+  display: block;
+  height: 100%;
+  background: #16a34a;
+}
+
+.pending-accordion {
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.accordion-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #fff;
+}
+
+.accordion-item summary {
+  cursor: pointer;
+  padding: 10px;
+  font-weight: 700;
+}
+
+.accordion-item summary::-webkit-details-marker {
+  color: var(--primary);
+}
+
+.accordion-content {
+  margin: 0;
+  padding: 0 18px 10px 28px;
+}
+
+.accordion-content li {
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
