@@ -173,13 +173,38 @@ textarea {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, #2563eb, #16a34a);
-  transition: width 0.25s ease;
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+#progressFill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.18) 0,
+    rgba(255, 255, 255, 0.18) 12px,
+    rgba(255, 255, 255, 0.04) 12px,
+    rgba(255, 255, 255, 0.04) 24px
+  );
+  animation: stripesShift 2.6s linear infinite;
+  pointer-events: none;
 }
 
 .split {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
+}
+
+.panel-full {
+  width: 100%;
+}
+
+.split-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .small h2 {
@@ -228,6 +253,35 @@ textarea {
   display: block;
   height: 100%;
   background: #16a34a;
+  transition:
+    width 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mini-bar > span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.18) 0,
+    rgba(255, 255, 255, 0.18) 10px,
+    rgba(255, 255, 255, 0.04) 10px,
+    rgba(255, 255, 255, 0.04) 20px
+  );
+  animation: stripesShift 2.4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes stripesShift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 48px 0;
+  }
 }
 
 .pending-accordion {
@@ -268,7 +322,20 @@ textarea {
 }
 
 @media (max-width: 900px) {
-  .split {
-    grid-template-columns: 1fr;
+  .split,
+  .split-two {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #progressFill,
+  .mini-bar > span {
+    transition: none;
+  }
+
+  #progressFill::after,
+  .mini-bar > span::after {
+    animation: none;
   }
 }

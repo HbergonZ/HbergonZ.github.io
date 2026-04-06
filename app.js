@@ -11,6 +11,7 @@ const progressText = document.getElementById("progressText");
 const progressFill = document.getElementById("progressFill");
 const dimensionList = document.getElementById("dimensionList");
 const pendingList = document.getElementById("pendingList");
+const noEvidenceList = document.getElementById("noEvidenceList");
 
 const extractAnswer = (card) => {
   const answerBox = [...card.querySelectorAll("div")].find((el) =>
@@ -34,9 +35,15 @@ const isAnswered = (answer) => {
 };
 
 const evidenceStatus = (card) => {
-  const evidenceBadge = [...card.querySelectorAll("div")].find((el) =>
-    /Evidências/i.test(el.textContent || ""),
-  );
+  const evidenceBadge =
+    [...card.querySelectorAll("div[style]")].find((el) => {
+      const text = el.textContent || "";
+      const style = (el.getAttribute("style") || "").toLowerCase();
+      return /Evidências/i.test(text) && style.includes("background-color");
+    }) ||
+    [...card.querySelectorAll("div")].find((el) =>
+      /Evidências/i.test(el.textContent || ""),
+    );
 
   if (!evidenceBadge) return "unknown";
 
@@ -51,7 +58,15 @@ const parseQuestions = (html) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
-  const dimensions = [...doc.querySelectorAll(".mb-6")]
+  const reviewTitle = [...doc.querySelectorAll("h2")].find((el) =>
+    /Finalizamos!\s*Revise as questões e evidências para submeter/i.test(
+      el.textContent || "",
+    ),
+  );
+
+  const reviewRoot = reviewTitle?.parentElement || doc;
+
+  const dimensions = [...reviewRoot.querySelectorAll(".mb-6")]
     .map((dim) => {
       const title =
         dim.querySelector("h3")?.textContent?.trim() || "Sem dimensão";
@@ -86,12 +101,12 @@ const buildSummary = (stats) => {
       <strong class="value success">${stats.completed}</strong>
     </article>
     <article class="card">
-      <span class="label">Pendentes</span>
-      <strong class="value danger">${stats.pending}</strong>
+      <span class="label">Respostas sem evidências</span>
+      <strong class="value ${stats.answeredNoEvidence > 0 ? "danger" : "success"}">${stats.answeredNoEvidence}</strong>
     </article>
     <article class="card">
-      <span class="label">Evidência em vermelho</span>
-      <strong class="value ${stats.evidenceRed > 0 ? "danger" : "success"}">${stats.evidenceRed}</strong>
+      <span class="label">Pendentes</span>
+      <strong class="value danger">${stats.pending}</strong>
     </article>
   `;
 };
@@ -105,6 +120,8 @@ const renderDimensions = (dimensions, useEvidence) => {
       useEvidence ? q.answered && q.evidence !== "red" : q.answered,
     ).length;
     const percent = total ? Math.round((completed / total) * 100) : 0;
+    const barColor =
+      percent === 100 ? "#16a34a" : percent > 50 ? "#eab308" : "#dc2626";
 
     const item = document.createElement("div");
     item.className = "dimension-item";
@@ -113,14 +130,19 @@ const renderDimensions = (dimensions, useEvidence) => {
         <strong>${dim.title}</strong>
         <span>${completed}/${total} (${percent}%)</span>
       </div>
-      <div class="mini-bar"><span style="width:${percent}%"></span></div>
+      <div class="mini-bar"><span style="width:0%; background:${barColor};"></span></div>
     `;
 
     dimensionList.appendChild(item);
+
+    const miniFill = item.querySelector(".mini-bar > span");
+    requestAnimationFrame(() => {
+      if (miniFill) miniFill.style.width = `${percent}%`;
+    });
   });
 };
 
-const renderPending = (dimensions, useEvidence) => {
+const renderPending = (dimensions) => {
   pendingList.innerHTML = "";
 
   const grouped = [];
@@ -131,11 +153,6 @@ const renderPending = (dimensions, useEvidence) => {
     dim.questions.forEach((q) => {
       if (!q.answered) {
         dimPending.push(`${q.question} (sem resposta)`);
-        return;
-      }
-
-      if (useEvidence && q.evidence === "red") {
-        dimPending.push(`${q.question} (evidência em vermelho)`);
       }
     });
 
@@ -173,6 +190,50 @@ const renderPending = (dimensions, useEvidence) => {
   });
 };
 
+const renderNoEvidence = (dimensions) => {
+  noEvidenceList.innerHTML = "";
+
+  const grouped = [];
+
+  dimensions.forEach((dim) => {
+    const items = dim.questions
+      .filter((q) => q.answered && q.evidence === "red")
+      .map((q) => `${q.question} (respondida, evidência em vermelho)`);
+
+    if (items.length > 0) {
+      grouped.push({ title: dim.title, items });
+    }
+  });
+
+  if (grouped.length === 0) {
+    noEvidenceList.innerHTML =
+      '<div class="muted">Nenhuma pergunta respondida sem evidência 🎉</div>';
+    return;
+  }
+
+  grouped.forEach((group) => {
+    const details = document.createElement("details");
+    details.className = "accordion-item";
+    details.open = true;
+
+    const summary = document.createElement("summary");
+    summary.textContent = `${group.title} (${group.items.length})`;
+
+    const ul = document.createElement("ul");
+    ul.className = "accordion-content";
+
+    group.items.forEach((itemText) => {
+      const li = document.createElement("li");
+      li.textContent = itemText;
+      ul.appendChild(li);
+    });
+
+    details.appendChild(summary);
+    details.appendChild(ul);
+    noEvidenceList.appendChild(details);
+  });
+};
+
 const analyze = () => {
   const source = htmlInput.value.trim();
   if (!source) {
@@ -196,17 +257,23 @@ const analyze = () => {
     useEvidence ? q.answered && q.evidence !== "red" : q.answered,
   ).length;
   const pending = total - completed;
-  const evidenceRed = questions.filter((q) => q.evidence === "red").length;
+  const answeredNoEvidence = questions.filter(
+    (q) => q.answered && q.evidence === "red",
+  ).length;
   const percent = total ? Math.round((completed / total) * 100) : 0;
 
-  buildSummary({ total, completed, pending, evidenceRed });
+  buildSummary({ total, completed, pending, answeredNoEvidence });
   renderDimensions(dimensions, useEvidence);
-  renderPending(dimensions, useEvidence);
+  renderPending(dimensions);
+  renderNoEvidence(dimensions);
 
-  progressText.textContent = `${percent}% (${completed}/${total})`;
-  progressFill.style.width = `${percent}%`;
   dashboard.classList.remove("hidden");
   inputPanel.classList.add("hidden");
+
+  progressText.textContent = `${percent}% (${completed}/${total})`;
+  requestAnimationFrame(() => {
+    progressFill.style.width = `${percent}%`;
+  });
 };
 
 analyzeBtn.addEventListener("click", analyze);
@@ -221,6 +288,7 @@ clearBtn.addEventListener("click", () => {
   summaryCards.innerHTML = "";
   dimensionList.innerHTML = "";
   pendingList.innerHTML = "";
+  noEvidenceList.innerHTML = "";
   progressText.textContent = "0%";
   progressFill.style.width = "0%";
 });
